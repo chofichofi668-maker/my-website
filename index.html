@@ -4,92 +4,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>موقعي الجميل</title>
-
+<title>تخدم تشبع خدمة | سوق الجزائر</title>
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  color: white;
-  text-align: center;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.box {
-  padding: 30px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.1);
-  box-shadow: 0 0 25px rgba(0,0,0,0.3);
-  width: 85%;
-  max-width: 400px;
-}
-
-h1 {
-  color: #00e5ff;
-}
-
-#clock {
-  font-size: 35px;
-  margin: 25px;
-  font-weight: bold;
-}
-
-button {
-  background: #00e5ff;
-  color: #003344;
-  border: none;
-  padding: 15px 25px;
-  border-radius: 12px;
-  font-size: 18px;
-  margin: 10px;
-  cursor: pointer;
-}
-
-button:hover {
-  transform: scale(1.05);
-}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#111}
+header{background:#111;color:white;padding:22px;text-align:center}
+header h1{margin:5px}
+nav{background:#222;padding:12px;text-align:center}
+nav a{color:white;margin:10px;text-decoration:none}
+.container{max-width:1100px;margin:auto;padding:18px}
+.hero{background:#111;color:white;text-align:center;padding:35px 15px;border-radius:12px}
+button{background:#111;color:white;border:0;padding:12px 18px;border-radius:7px;cursor:pointer;margin:5px}
+button:hover{background:#444}
+input,select{padding:12px;width:100%;margin:7px 0;border:1px solid #ccc;border-radius:7px}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px}
+.product{background:white;padding:15px;border-radius:10px;text-align:center;border:1px solid #ddd}
+.product img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+.price{font-weight:bold;font-size:19px}
+.panel{background:white;padding:18px;border-radius:10px;margin-top:20px}
+footer{background:#111;color:white;text-align:center;padding:25px;margin-top:30px}
+.hidden{display:none}
 </style>
 </head>
-
 <body>
 
-<div class="box">
-  <h1>🌟 مرحباً بك في موقعي</h1>
-  <p>هذا أول موقع إلكتروني أصنعه!</p>
+<header>
+<h1>تخدم تشبع خدمة</h1>
+<p>سوق إلكتروني يجمع التجار والزبائن في الجزائر</p>
+</header>
 
-  <div id="clock">00:00:00</div>
+<nav>
+<a href="#home">الرئيسية</a>
+<a href="#products">المنتجات</a>
+<a href="#shops">المتاجر</a>
+<a href="#admin">لوحة التاجر</a>
+</nav>
 
-  <button onclick="changeColor()">🎨 تغيير اللون</button>
+<div class="container" id="home">
+<section class="hero">
+<h2>مرحبا بك في سوق تخدم تشبع خدمة</h2>
+<p>اكتشف المنتجات واطلب بسهولة من جميع أنحاء الجزائر</p>
+<button onclick="document.getElementById('products').scrollIntoView()">تسوق الآن</button>
+</section>
+
+<section id="shops" class="panel">
+<h2>اختر المتجر</h2>
+<select id="shop" onchange="changeShop()">
+<option value="main">المتجر الرئيسي</option>
+</select>
+<p id="shopName">المتجر الرئيسي</p>
+</section>
+
+<section id="products" class="panel">
+<h2>المنتجات</h2>
+<div class="products" id="productList"></div>
+</section>
+
+<section id="admin" class="panel">
+<h2>لوحة إدارة المنتجات (نسخة تجريبية)</h2>
+<input id="productName" placeholder="اسم المنتج">
+<input id="productPrice" type="number" placeholder="السعر بالدينار الجزائري">
+<input id="productImage" placeholder="رابط صورة المنتج">
+<button onclick="addProduct()">إضافة المنتج</button>
+</section>
 </div>
 
+<footer>
+<p>تخدم تشبع خدمة © 2026</p>
+<p>الدفع عند الاستلام | التوصيل إلى جميع ولايات الجزائر</p>
+</footer>
+
 <script>
-function updateClock() {
-  let now = new Date();
-  document.getElementById("clock").textContent =
-    now.toLocaleTimeString("ar-DZ");
+const whatsapp = "213798741807";
+
+function storageKey(){
+ return "products_" + document.getElementById("shop").value;
 }
 
-setInterval(updateClock, 1000);
-updateClock();
-
-function changeColor() {
-  let colors = [
-    "#0f2027",
-    "#42275a",
-    "#134e5e",
-    "#642b36",
-    "#1d4350"
-  ];
-
-  let color = colors[Math.floor(Math.random() * colors.length)];
-
-  document.body.style.background = color;
+function getProducts(){
+ return JSON.parse(localStorage.getItem(storageKey()) || "[]");
 }
+
+function showProducts(){
+ const products=getProducts();
+ const list=document.getElementById("productList");
+ list.innerHTML="";
+
+ if(products.length===0){
+ list.innerHTML="<p>لا توجد منتجات حاليا في هذا المتجر.</p>";
+ return;
+ }
+
+ products.forEach((p)=>{
+ const card=document.createElement("div");
+ card.className="product";
+
+ const img=document.createElement("img");
+ img.src=p.image || "https://placehold.co/300x200?text=Product";
+ img.alt=p.name;
+
+ const name=document.createElement("h3");
+ name.textContent=p.name;
+
+ const price=document.createElement("p");
+ price.className="price";
+ price.textContent=p.price+" دج";
+
+ const order=document.createElement("button");
+ order.textContent="اطلب عبر واتساب";
+ order.onclick=()=> {
+ const message="السلام عليكم، أريد طلب: "+p.name+
+ " بسعر "+p.price+" دج";
+ window.open("https://wa.me/"+whatsapp+
+ "?text="+encodeURIComponent(message),"_blank");
+ };
+
+ card.append(img,name,price,order);
+ list.appendChild(card);
+ });
+}
+
+function addProduct(){
+ const name=document.getElementById("productName").value.trim();
+ const price=document.getElementById("productPrice").value;
+ const image=document.getElementById("productImage").value.trim();
+
+ if(!name || !price || Number(price)<=0){
+ alert("أدخل اسم المنتج والسعر الصحيح");
+ return;
+ }
+
+ const products=getProducts();
+ products.push({name,price,image});
+ localStorage.setItem(storageKey(),JSON.stringify(products));
+
+ document.getElementById("productName").value="";
+ document.getElementById("productPrice").value="";
+ document.getElementById("productImage").value="";
+
+ showProducts();
+ alert("تمت إضافة المنتج");
+}
+
+function changeShop(){
+ const shop=document.getElementById("shop");
+ document.getElementById("shopName").textContent=
+ shop.options[shop.selectedIndex].text;
+ showProducts();
+}
+
+showProducts();
 </script>
-
 </body>
 </html>
